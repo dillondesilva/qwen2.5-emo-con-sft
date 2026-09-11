@@ -101,6 +101,9 @@ def run_sft(
     )
     trainer.train()
     trainer.save_model(str(output))
+    tokenizer = getattr(trainer, "tokenizer", None) or getattr(trainer, "processing_class", None)
+    if tokenizer is not None and hasattr(tokenizer, "save_pretrained"):
+        tokenizer.save_pretrained(str(output))
     print(f"saved adapter to {output}")
 
     if merge:
