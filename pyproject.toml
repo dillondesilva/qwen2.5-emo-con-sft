@@ -7,6 +7,7 @@ dependencies = [
     "accelerate>=1.0.0",
     "datasets>=3.0.0",
     "huggingface_hub>=0.26.0",
+    "modal>=0.73.0",
     "peft>=0.14.0",
     "torch>=2.4.0",
     "transformers>=4.46.0",
@@ -17,6 +18,7 @@ dependencies = [
 emo-inspect = "emo_sft.inspect:main"
 emo-prepare = "emo_sft.prepare:main"
 emo-train = "emo_sft.train:main"
+emo-train-modal = "emo_sft.modal_sft:main"
 emo-chat = "emo_sft.chat:main"
 
 [build-system]
