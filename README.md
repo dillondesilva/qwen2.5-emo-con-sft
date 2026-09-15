@@ -56,3 +56,12 @@ uv run emo-chat --model Qwen/Qwen2.5-1.5B-Instruct
 | Epochs | 2 |
 | Loss | assistant turns only |
 | System prompt | *You are a close friend offering genuine emotional support. Respond naturally.* |
+
+## Post-training notes (vibe check)
+
+Informal read of the current conversation logs. Raw transcripts, JSONL, adapters, and eval dumps stay local (`data/`, `outputs/`, `evals/`) and are not committed.
+
+- **The logs sound like two friends, not a helpline.** Grief, feeling trapped or exhausted, then laughing at something dumb in the next breath. Lots of backchannels, overlapping talk, and tags like `[laughing]` / `[sigh]`. That is the style SFT is copying.
+- **Both speakers are the model.** Dual-role views train each side as the assistant, so a “good” reply might be comfort *or* venting about your own day. There is no dedicated therapist persona in the gold.
+- **Five public chats is a smoke test.** Four conversations in train, one held out. Two LoRA epochs on that will mostly memorize those people. Don’t expect a general emotional-intelligence upgrade yet — rerun as emo-com grows.
+- **The trained 1.5B has not really been vibe-checked.** Tooling exists to dump gold-vs-model chats, but this tree has no generation logs from `outputs/emo-sft`. Until those are read, the *data* vibe is close-friend and messy; the *adapter* vibe is still unknown. If SFT sticks at all, expect plaintext `[laughing]` and short “yeah” / “mm” turns to leak in.
