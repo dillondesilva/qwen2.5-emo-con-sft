@@ -20,6 +20,7 @@ emo-prepare = "emo_sft.prepare:main"
 emo-train = "emo_sft.train:main"
 emo-train-modal = "emo_sft.modal_sft:main"
 emo-chat = "emo_sft.chat:main"
+emo-eval = "emo_sft.eval:main"
 
 [build-system]
 requires = ["hatchling"]

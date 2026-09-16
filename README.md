@@ -71,6 +71,16 @@ uv run emo-chat --model Qwen/Qwen2.5-1.5B-Instruct
 
 `--model` is a Hub id, a local full-model directory, or a LoRA folder (`adapter_config.json`). Type `quit` or `exit` to leave. Optional: `--system`, `--max-new-tokens`.
 
+Local eval on the held-out conversation (`data/eval.jsonl`). Teacher-forced gold vs model by default; `--rollout` also dumps a free conversation using the model’s own replies:
+
+```bash
+uv run emo-prepare   # hold out 1 conversation → data/eval.jsonl
+uv run emo-eval --model outputs/emo-sft
+uv run emo-eval --model Qwen/Qwen2.5-1.5B-Instruct --rollout
+```
+
+Writes a markdown chat log under `evals/` (override with `--output`). Optional: `--data`, `--limit`, `--system`, `--max-new-tokens`.
+
 ## What SFT writes
 
 Training freezes the base model and learns LoRA adapters on `q/k/v/o_proj`. The adapter folder is PEFT only (`adapter_config.json` + `adapter_model.safetensors`), not a new Qwen checkpoint. `emo-chat` loads the base from that config and attaches the adapter with PEFT. Modal (or local `--merge`) also writes a merged full-model directory you can load without PEFT.
