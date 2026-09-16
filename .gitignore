@@ -12,3 +12,4 @@ wheels/
 # Pipeline artifacts
 data/*.jsonl
 outputs/
+evals/
