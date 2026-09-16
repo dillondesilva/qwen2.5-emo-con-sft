@@ -98,9 +98,9 @@ Training freezes the base model and learns LoRA adapters on `q/k/v/o_proj`. The 
 
 ## Post-training notes (vibe check)
 
-Informal read of the current conversation logs. Raw transcripts, JSONL, adapters, and eval dumps stay local (`data/`, `outputs/`, `evals/`) and are not committed.
+SFT vs gold vs original Qwen, from the conversation logs that exist. Not a new eval run. Raw dumps stay local (`evals/`, `data/`, `outputs/`) and are not committed.
 
-- **The logs sound like two friends, not a helpline.** Grief, feeling trapped or exhausted, then laughing at something dumb in the next breath. Lots of backchannels, overlapping talk, and tags like `[laughing]` / `[sigh]`. That is the style SFT is copying.
-- **Both speakers are the model.** Dual-role views train each side as the assistant, so a “good” reply might be comfort *or* venting about your own day. There is no dedicated therapist persona in the gold.
-- **Five public chats is a smoke test.** Four conversations in train, one held out. Two LoRA epochs on that will mostly memorize those people. Don’t expect a general emotional-intelligence upgrade yet — rerun as emo-com grows.
-- **The trained 1.5B has not really been vibe-checked.** Tooling exists to dump gold-vs-model chats, but this tree has no generation logs from `outputs/emo-sft`. Until those are read, the *data* vibe is close-friend and messy; the *adapter* vibe is still unknown. If SFT sticks at all, expect plaintext `[laughing]` and short “yeah” / “mm” turns to leak in.
+- **Did SFT sit closer to gold than the original model?** Not in any log we have. Gold is the held-out human chat. `emo-eval` is wired to dump User / Gold / Model for `outputs/emo-sft` *and* for `Qwen/Qwen2.5-1.5B-Instruct`, but those markdown logs were never written (the eval pass skipped full inference). Without both dumps, we cannot say SFT is better vs ground truth than stock Instruct.
+- **Gold is a different register than Instruct.** The conversation logs are two friends — grief and exhaustion mixed with jokes, backchannels, `[laughing]` / `[sigh]`, either speaker as the assistant. Stock Qwen is a helpful-assistant model. That gap is the whole point of SFT; it is also why a bake-off has to be gold-vs-SFT-vs-base, not “does SFT sound nice.”
+- **Tiny train set, so even a win would be shaky.** Four conversations in train, one held out (two dual-role views). Two LoRA epochs on that is more likely to memorize those people than to beat the original model in a way that generalizes.
+- **What would count as “better.”** On the same teacher-forced turns: SFT should look more like gold than base does (short peer talk, tags, less helpline energy) without just pasting the train speakers. That comparison is still untested until both `evals/` dumps are read.
