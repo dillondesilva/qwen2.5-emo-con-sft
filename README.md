@@ -95,3 +95,64 @@ Training freezes the base model and learns LoRA adapters on `q/k/v/o_proj`. The 
 | Loss | assistant turns only |
 | Modal GPU | A10G |
 | System prompt | *You are a close friend offering genuine emotional support. Respond naturally.* |
+
+## Vibe check results
+
+After running the eval (informally) and taking the responses from Qwen2.5-1.5B (Vanilla) vs Qwen2.5-1.5B (Emo-Con SFT), I popped the results into Claude just to vibe-check and pick out some interesting conversational messages and general beahviour changes. Here's what it had to say:
+
+### Base model vs. emotion-SFT fine-tune: a qualitative read
+
+Comparing Qwen2.5-1.5B-Instruct (base) against its emo-sft LoRA fine-tune on the same teacher-forced conversation, turn by turn. All examples below are matched turns — both models respond to the identical preceding line, so the differences reflect style and failure mode, not topic.
+
+### 1. Brevity — backchannel vs. over-explaining
+
+> **User:** "If it's too far, then it's not worth it, really. You just get up there and you turn around and come back again."
+
+**Base:** "Totally, it's about accessibility and how convenient it is. Plus, having a place where you can have fun without the hustle and bustle of city life sounds pretty nice."
+
+**Fine-tune:** "Exactly! It's a great spot though, if you're ever down there."
+
+Base restates and analyzes the user's point at length, like a summary rather than a reply. The fine-tune answers the way a real conversation partner would — a short, natural acknowledgement, not an essay.
+
+### 2. Persona break — slipping into "assistant" voice
+
+> **User (opening line):** "… my special place, trust me. [laughs]"
+
+**Base:** "Oh, I'm all ears! What's your special place? It could be anything — maybe it's the beach where you feel most relaxed or the cozy corner of your living room that always brings back happy memories. Tell me about it!"
+
+**Fine-tune:** "Oh, I see! That's quite an unusual greeting to start with. Do you need help or just want to talk about something?"
+
+Both models drop the "person on a call" persona on the very first turn. Base does it with generic, listicle-style chatbot enthusiasm; the fine-tune's slip is shorter, though it still asks "do you need help" — a tell that it's reasoning as an assistant, not a person.
+
+### 3. Fine-tune failure — repetition collapse ⚠️
+
+> **User:** "Oh, cool. I had no idea." *(twenty turns into a long, monologue-heavy stretch about Rice Lake)*
+
+**Base:** "So that's how it became known as Rice Lake. And, uh, uh, it's a good name for it. It is."
+
+**Fine-tune:** "So, uh, yeah. It's great. It's a nice spot. And it's also a great camping site. And it's, uh, uh, uh, uh, uh, uh, uh, uh, uh, uh, uh, uh, uh, uh."
+
+Under sustained long-context pressure, the fine-tune degenerates into a token-repetition loop ("uh" repeated 14 times) — a classic small-model/overfit-LoRA failure mode not seen anywhere in the base model's transcript. The base model stumbles on the same turn ("uh, uh") but recovers and finishes the sentence.
+
+### 4. Base failure — ungrounded fabrication ⚠️
+
+> **User:** "Oh my gosh. What?" *(reacting to: "she just robbed the place")*
+
+**Base:** "And I'm like, 'Uh oh.' And I ran inside and grabbed some money and I ran outside and grabbed a camera and took a few pictures, and left. And I told them later that day that I would never go near that store again… it turns out the next day she came back and tried to rob the store again, and she was caught."
+
+**Fine-tune:** "Yeah. And uh, um, the police arrived and they took them in."
+
+Base invents an entire, causally muddled mini-story with no basis in the conversation (grabbing a camera to take pictures of a robber, then leaving) — confident fabrication rather than a grounded reply. The fine-tune's response is short and stays plausible given what was actually said.
+
+### Summary
+
+| Dimension | Base (Qwen2.5-1.5B-Instruct) | Fine-tune (emo-sft) |
+|---|---|---|
+| Response length | Verbose, tends to restate/analyze | Terse, closer to natural speech |
+| Persona stability | Breaks into generic "assistant" enthusiasm | Breaks less often, but still assistant-flavored when it does |
+| Grounding | Will fabricate elaborate, ungrounded narrative detail | Stays closer to what was actually said |
+| Stability under long context | Grammatically stable throughout | Prone to repetition-loop collapse under pressure |
+
+Net read: the fine-tune trades some robustness (it can loop under long-context pressure) for a meaningfully more natural, less "assistant-y" conversational register — while the base model's extra verbosity buys stability but shows up as unearned confidence when it doesn't actually know what happened.
+
+*Source: eval-emo-sft.md and eval-Qwen2.5-1.5B-Instruct.md, conversation d9dac5ca-67b0-410b-bdfc-b2e1dd435c18, teacher-forced generations for both assistant_speaker=1 and assistant_speaker=2.*
